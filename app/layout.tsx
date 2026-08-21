@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google"; // Importamos una fuente moderna
+// @ts-ignore CSS side-effect imports are handled by Next.js.
 import "./globals.css";
 import { CartProvider } from "../context/CartContext";
 import Link from "next/link";
+import Image from "next/image"; // Importamos Image para el logo
 import CartIcon from "@/components/CartIcon";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,9 +27,16 @@ export default function RootLayout({
           <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
               
-              {/* Logo con tu marca RVRS */}
-              <Link href="/" className="text-xl font-black tracking-tighter uppercase text-brand-black">
-                <span className="text-brand-accent">RVRS</span>
+              {/* Logo botón principal de la marca RVRS */}
+              <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                <Image 
+                  src="/logo.png" 
+                  alt="RVRS Logo" 
+                  width={120} 
+                  height={40} 
+                  className="h-8 w-auto object-contain" 
+                  priority 
+                />
               </Link>
 
               {/* Enlaces y Carrito */}
@@ -72,4 +81,3 @@ export default function RootLayout({
     </html>
   );
 }
-                

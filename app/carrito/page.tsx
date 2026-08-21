@@ -43,7 +43,7 @@ export default function CartPage() {
 
       // 2. Preparar el mensaje para WhatsApp
       const itemsList = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('%0A');
-      const message = `🚀 *NUEVO PEDIDO RVRS*%0A%0A` +
+      const message = `🚀 *NUEVO PEDIDO*%0A%0A` +
                       `*Cliente:* ${customer.name}%0A` +
                       `*Tel:* ${customer.phone}%0A` +
                       `*Dirección:* ${customer.address}%0A%0A` +

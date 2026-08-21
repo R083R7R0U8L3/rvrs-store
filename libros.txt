@@ -1,0 +1,3 @@
+12345;ana frank;Sí
+1;ANA FRANK;Sí
+2;harry potter;No

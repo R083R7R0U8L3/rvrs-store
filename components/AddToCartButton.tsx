@@ -19,7 +19,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
 
   const handleAdd = () => {
     // Usamos optional chaining y valores por defecto seguros
-    const variant = product?.product_variants?.[0];
+    const variant = product?.product_variants?.[0] || { size: 'M', color: 'Negro' };
 
     addToCart({
       id: product?.id || Math.random().toString(),

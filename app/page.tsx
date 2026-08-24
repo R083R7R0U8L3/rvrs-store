@@ -1,90 +1,120 @@
-import Link from 'next/link';
-import Image from 'next/image';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
+import Link from 'next/link';
+import AddToCartButton from '@/components/AddToCartButton';
 
-export default async function Home() {
-  // 1. Petición a Supabase para traer productos con su URL de imagen
-  const { data: products, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_active', true);
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  base_price: number;
+  slug: string;
+  image_url: string;
+}
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-red-500">
-        Error al cargar productos: {error.message}
-      </div>
-    );
-  }
+export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+
+        if (error) throw error;
+        if (data) setProducts(data);
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* --- SECCIÓN HERO --- */}
-      <header className="py-20 px-4 text-center border-b border-gray-50">
-        <h1 className="text-6xl font-black tracking-tighter uppercase text-black italic">
+    <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
+      {/* SECCIÓN HERO / TITULAR */}
+      <section className="text-center py-16 md:py-24 px-4 border-b border-gray-100 dark:border-neutral-900">
+        <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter italic">
           RVRS <span className="text-red-600">COLLECTION</span>
         </h1>
-        <p className="mt-4 text-gray-400 uppercase tracking-[0.3em] text-xs">
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">
           Essentials for the modern rebel
         </p>
-      </header>
+      </section>
 
-      {/* --- GRID DE PRODUCTOS --- */}
+      {/* CATÁLOGO DE PRODUCTOS */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-          
-          {products?.map((product) => (
-            <Link 
-              href={`/producto/${product.slug}`} 
-              key={product.id}
-              className="group flex flex-col"
-            >
-              {/* CONTENEDOR DE IMAGEN DINÁMICA */}
-              <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden mb-6">
-                {product.image_url ? (
-                  <Image 
-                    src={product.image_url} 
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-300 uppercase text-xs tracking-widest">
-                    Imagen no disponible
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="h-96 bg-gray-100 dark:bg-neutral-900 animate-pulse rounded" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => (
+              <div 
+                key={product.id}
+                className="group relative bg-gray-50 dark:bg-neutral-900/60 border border-gray-100 dark:border-neutral-800 p-4 transition-all duration-300 hover:shadow-2xl dark:hover:border-neutral-700 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Contenedor de la Imagen */}
+                  <div className="relative w-full h-80 bg-gray-200 dark:bg-neutral-800 overflow-hidden mb-4">
+                    <span className="absolute top-2 left-2 z-10 bg-black text-white text-[9px] font-black uppercase px-2 py-1 tracking-widest">
+                      LIMITED
+                    </span>
+                    {product.image_url ? (
+                      <Image
+                        src={product.image_url}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-xs text-gray-400 uppercase font-bold">
+                        Sin imagen
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                {/* Badge de diseño */}
-                <div className="absolute top-4 left-4 bg-black text-white text-[10px] px-3 py-1 font-bold uppercase tracking-widest">
-                  Limited
+
+                  {/* Info de producto */}
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-black uppercase tracking-tight text-black dark:text-white">
+                      {product.name}
+                    </h3>
+                    <span className="font-bold text-red-600 text-lg">
+                      ${product.base_price}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-6">
+                    {product.description}
+                  </p>
+                </div>
+
+                {/* Acciones */}
+                <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-neutral-800">
+                  <Link 
+                    href={`/producto/${product.slug}`}
+                    className="block text-center w-full bg-transparent border-2 border-black dark:border-white text-black dark:text-white py-3 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                  >
+                    Ver Detalles
+                  </Link>
+
+                  <AddToCartButton product={product} />
                 </div>
               </div>
-
-              {/* INFORMACIÓN DEL PRODUCTO */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-baseline">
-                  <h2 className="text-lg font-bold text-black uppercase tracking-tight">
-                    {product.name}
-                  </h2>
-                  <span className="text-red-600 font-medium">
-                    ${product.base_price}
-                  </span>
-                </div>
-                
-                <p className="text-gray-400 text-sm line-clamp-1 uppercase tracking-tighter">
-                  {product.description}
-                </p>
-
-                <div className="pt-2 flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-black border-t border-gray-100 mt-4 group-hover:text-red-600 transition-colors">
-                  Explorar diseño 
-                  <span className="ml-2 group-hover:translate-x-2 transition-transform duration-300">→</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

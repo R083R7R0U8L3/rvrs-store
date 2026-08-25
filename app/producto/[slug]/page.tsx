@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import AddToCartButton from '@/components/AddToCartButton';
 import Link from 'next/link';
+import ProductImageSlider from '@/components/ProductImageSlider';
 
 export default async function ProductPage({ 
   params 
@@ -24,44 +24,22 @@ export default async function ProductPage({
     notFound();
   }
 
-  // Creamos un array de 4 imágenes repetidas para simular la galería
+  // Galería de 4 imágenes idénticas (simuladas) para el slider
   const galleryImages = [
     product.image_url,
     product.image_url,
     product.image_url,
     product.image_url
-  ];
+  ].filter(Boolean) as string[];
 
   return (
     <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
           
-          {/* COLUMNA IZQUIERDA: GALERÍA DE 4 IMÁGENES */}
-          <div className="grid grid-cols-2 gap-4">
-            {galleryImages.map((imgUrl, index) => (
-              <div key={index} className="relative aspect-[3/4] bg-gray-50 dark:bg-neutral-900 overflow-hidden group">
-                {imgUrl ? (
-                  <Image 
-                    src={imgUrl} 
-                    alt={`${product.name} vista ${index + 1}`}
-                    fill
-                    priority={index === 0} // Solo prioriza la primera imagen
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-300 dark:text-gray-600 uppercase tracking-widest text-xs text-center px-4">
-                    Sin imagen disponible
-                  </div>
-                )}
-                {/* Logo sutil solo en la primera foto */}
-                {index === 0 && (
-                  <div className="absolute bottom-4 left-4 text-white/20 dark:text-white/10 font-black text-2xl pointer-events-none uppercase italic">
-                    RVRS
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* COLUMNA IZQUIERDA: CARRUSEL DESLIZABLE */}
+          <div className="w-full">
+             <ProductImageSlider images={galleryImages} productName={product.name} />
           </div>
 
           {/* COLUMNA DERECHA: INFO Y COMPRA */}

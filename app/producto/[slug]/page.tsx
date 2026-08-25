@@ -9,10 +9,8 @@ export default async function ProductPage({
 }: { 
   params: Promise<{ slug: string }> 
 }) {
-  // 1. Desenvolvemos los parámetros (Requisito Next.js 15)
   const { slug } = await params;
 
-  // 2. Buscamos el producto, sus variantes y la nueva columna image_url
   const { data: product, error } = await supabase
     .from('products')
     .select(`
@@ -22,47 +20,59 @@ export default async function ProductPage({
     .eq('slug', slug)
     .single();
 
-  // Si hay error o el producto no existe, mandamos a la página 404
   if (error || !product) {
     notFound();
   }
 
+  // Creamos un array de 4 imágenes repetidas para simular la galería
+  const galleryImages = [
+    product.image_url,
+    product.image_url,
+    product.image_url,
+    product.image_url
+  ];
+
   return (
     <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
           
-          {/* COLUMNA IZQUIERDA: IMAGEN */}
-          <div className="relative aspect-[3/4] bg-gray-50 dark:bg-neutral-900 overflow-hidden group">
-            {product.image_url ? (
-              <Image 
-                src={product.image_url} 
-                alt={product.name}
-                fill
-                priority // Carga esta imagen de inmediato (LCP optimization)
-                className="object-cover"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-gray-300 dark:text-gray-600 uppercase tracking-widest text-xs">
-                Sin imagen disponible
+          {/* COLUMNA IZQUIERDA: GALERÍA DE 4 IMÁGENES */}
+          <div className="grid grid-cols-2 gap-4">
+            {galleryImages.map((imgUrl, index) => (
+              <div key={index} className="relative aspect-[3/4] bg-gray-50 dark:bg-neutral-900 overflow-hidden group">
+                {imgUrl ? (
+                  <Image 
+                    src={imgUrl} 
+                    alt={`${product.name} vista ${index + 1}`}
+                    fill
+                    priority={index === 0} // Solo prioriza la primera imagen
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-300 dark:text-gray-600 uppercase tracking-widest text-xs text-center px-4">
+                    Sin imagen disponible
+                  </div>
+                )}
+                {/* Logo sutil solo en la primera foto */}
+                {index === 0 && (
+                  <div className="absolute bottom-4 left-4 text-white/20 dark:text-white/10 font-black text-2xl pointer-events-none uppercase italic">
+                    RVRS
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Overlay sutil de marca */}
-            <div className="absolute bottom-6 left-6 text-white/20 dark:text-white/10 font-black text-4xl pointer-events-none uppercase italic">
-              RVRS
-            </div>
+            ))}
           </div>
 
           {/* COLUMNA DERECHA: INFO Y COMPRA */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-start lg:pt-10">
             <nav className="mb-8 text-[10px] uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
               <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">Tienda</Link>
               <span className="mx-2">/</span>
               <span className="text-black dark:text-white font-bold">{product.name}</span>
             </nav>
 
-            <h1 className="text-5xl font-black text-black dark:text-white uppercase tracking-tighter leading-none mb-4">
+            <h1 className="text-4xl md:text-5xl font-black text-black dark:text-white uppercase tracking-tighter leading-none mb-4">
               {product.name}
             </h1>
             
@@ -70,14 +80,12 @@ export default async function ProductPage({
               ${product.base_price}
             </p>
 
-            <div className="prose prose-sm text-gray-500 dark:text-gray-400 mb-10 border-l-2 border-black dark:border-white pl-6 transition-colors">
+            <div className="prose prose-sm text-gray-500 dark:text-gray-400 mb-6 border-l-2 border-black dark:border-white pl-6 transition-colors">
               <p>{product.description}</p>
             </div>
 
-            {/* COMPONENTE INTERACTIVO (CLIENT SIDE) */}
-            <AddToCartButton 
-              product={product} 
-            />
+            {/* COMPONENTE INTERACTIVO (CLIENT SIDE) CON TALLAS */}
+            <AddToCartButton product={product} />
 
             {/* INFO EXTRA DE CONFIANZA */}
             <div className="mt-12 grid grid-cols-2 gap-4 pt-8 border-t border-gray-100 dark:border-neutral-800 transition-colors">

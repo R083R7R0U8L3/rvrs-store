@@ -10,7 +10,7 @@ import { useState } from 'react';
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const router = useRouter();
-  
+
   // Estado para los datos del cliente
   const [customer, setCustomer] = useState({
     name: '',
@@ -35,7 +35,7 @@ export default function CartPage() {
           customer_phone: customer.phone,
           address: customer.address,
           total_amount: total,
-          items: cart 
+          items: cart
         }
       ]);
 
@@ -44,11 +44,11 @@ export default function CartPage() {
       // 2. Preparar el mensaje para WhatsApp
       const itemsList = cart.map(i => `- ${i.name} (${i.size}) x${i.quantity}`).join('%0A');
       const message = `🚀 *NUEVO PEDIDO*%0A%0A` +
-                      `*Cliente:* ${customer.name}%0A` +
-                      `*Tel:* ${customer.phone}%0A` +
-                      `*Dirección:* ${customer.address}%0A%0A` +
-                      `*Productos:*%0A${itemsList}%0A%0A` +
-                      `*TOTAL:* $${total.toFixed(2)}`;
+        `*Cliente:* ${customer.name}%0A` +
+        `*Tel:* ${customer.phone}%0A` +
+        `*Dirección:* ${customer.address}%0A%0A` +
+        `*Productos:*%0A${itemsList}%0A%0A` +
+        `*TOTAL:* $${total.toFixed(2)}`;
 
       // Reemplaza el número abajo con el tuyo (incluye código de país, ej: 521...)
       const whatsappUrl = `https://wa.me/593979060750?text=${message}`;
@@ -88,9 +88,14 @@ export default function CartPage() {
             {cart.map((item) => (
               <div key={item.id} className="bg-white p-6 flex flex-col sm:flex-row items-center gap-6 border-2 border-gray-100">
                 <div className="relative w-24 h-32 bg-gray-50 flex-shrink-0">
-                  <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                  <Image
+                    src={item.image_url || '/logo.png'}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                
+
                 <div className="flex-grow text-center sm:text-left">
                   <h3 className="font-black uppercase tracking-tight text-lg">{item.name}</h3>
                   <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
@@ -115,24 +120,24 @@ export default function CartPage() {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-gray-50 p-8 border-t-8 border-black shadow-xl">
               <h2 className="font-black uppercase mb-6 tracking-[0.2em] text-sm">Datos de Envío</h2>
-              
+
               <div className="space-y-4 mb-8">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="NOMBRE COMPLETO"
                   className="w-full p-4 text-[11px] font-bold border-2 border-white focus:border-black outline-none transition-all uppercase"
-                  onChange={(e) => setCustomer({...customer, name: e.target.value})}
+                  onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
                 />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="WHATSAPP (Ej: +52...)"
                   className="w-full p-4 text-[11px] font-bold border-2 border-white focus:border-black outline-none transition-all"
-                  onChange={(e) => setCustomer({...customer, phone: e.target.value})}
+                  onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
                 />
-                <textarea 
+                <textarea
                   placeholder="DIRECCIÓN COMPLETA DE ENTREGA"
                   className="w-full p-4 text-[11px] font-bold border-2 border-white focus:border-black outline-none transition-all h-24 uppercase"
-                  onChange={(e) => setCustomer({...customer, address: e.target.value})}
+                  onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
                 />
               </div>
 
@@ -147,7 +152,7 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleCheckout}
                 className="w-full bg-black text-white py-5 font-black uppercase text-[12px] tracking-[0.3em] hover:bg-red-600 transition-all shadow-lg"
               >

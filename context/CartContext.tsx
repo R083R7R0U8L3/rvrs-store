@@ -1,14 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-interface CartItem {
+export interface CartItem {
   id: string;
   name: string;
   price: number;
+  image_url?: string;
   size: string;
   color: string;
-  image_url: string; // Guardamos la URL de la imagen aquí
   quantity: number;
 }
 
@@ -25,44 +25,71 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
+  // Carga segura con validación de tipo array
   useEffect(() => {
-    const savedCart = localStorage.getItem('rvrs_cart');
-    if (savedCart) {
-      try { setCart(JSON.parse(savedCart)); } catch (e) { console.error(e); }
+    try {
+      const savedCart = localStorage.getItem('rvrs_cart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+          setCart(parsed.filter((item) => item && item.id));
+        }
+      }
+    } catch (e) {
+      console.error('Error al cargar carrito:', e);
+      localStorage.removeItem('rvrs_cart');
     }
   }, []);
 
+  // Guardado seguro
   useEffect(() => {
-    localStorage.setItem('rvrs_cart', JSON.stringify(cart));
+    try {
+      localStorage.setItem('rvrs_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.error('Error al guardar carrito:', e);
+    }
   }, [cart]);
 
-  const addToCart = (item: CartItem) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+  const addToCart = (newItem: CartItem) => {
+    setCart((prevCart) => {
+      const validCart = Array.isArray(prevCart) ? prevCart : [];
+      const existing = validCart.find((item) => item?.id === newItem.id);
       if (existing) {
-        return prev.map((i) => 
-          i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+        return validCart.map((item) =>
+          item?.id === newItem.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...prev, item];
+      return [...validCart, newItem];
     });
   };
 
   const removeFromCart = (id: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    setCart((prevCart) => (Array.isArray(prevCart) ? prevCart.filter((item) => item?.id !== id) : []));
   };
 
   const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item))
+    if (newQuantity <= 0) {
+      removeFromCart(id);
+      return;
+    }
+    setCart((prevCart) =>
+      Array.isArray(prevCart)
+        ? prevCart.map((item) => (item?.id === id ? { ...item, quantity: newQuantity } : item))
+        : []
     );
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem('rvrs_cart');
+  };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -70,6 +97,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart debe usarse dentro de un CartProvider");
+  if (!context) {
+    throw new Error('useCart debe ser usado dentro de un CartProvider');
+  }
   return context;
 };

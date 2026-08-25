@@ -76,7 +76,7 @@ export default async function ProductPage({
             {/* COMPONENTE INTERACTIVO (CLIENT SIDE) */}
             <AddToCartButton 
               product={product} 
-              variants={product.product_variants} 
+            
             />
 
             {/* INFO EXTRA DE CONFIANZA */}

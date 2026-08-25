@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function CartIcon() {
   const { cart } = useCart();
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = (cart || []).reduce((acc, item) => acc + (item?.quantity || 0), 0);
 
   return (
     <Link href="/carrito" className="relative p-2 group">

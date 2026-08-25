@@ -24,13 +24,19 @@ export default async function ProductPage({
     notFound();
   }
 
-  // Galería de 4 imágenes idénticas (simuladas) para el slider
-  const galleryImages = [
-    product.image_url,
-    product.image_url,
-    product.image_url,
-    product.image_url
-  ].filter(Boolean) as string[];
+  // 1. Extraemos las URLs separadas por comas y limpiamos espacios vacíos
+  const galleryArray = product.gallery_urls 
+    ? product.gallery_urls.split(',').map((url: string) => url.trim()) 
+    : [];
+
+  // 2. Unimos la foto principal con las de la galería y quitamos vacíos
+  const rawImages = [product.image_url, ...galleryArray];
+  const galleryImages = rawImages.filter(Boolean) as string[];
+
+  // 3. Imagen por defecto por si acaso
+  if (galleryImages.length === 0) {
+     galleryImages.push('/logo.png'); 
+  }
 
   return (
     <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">

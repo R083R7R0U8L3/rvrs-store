@@ -225,10 +225,10 @@ export default function CheckoutPage() {
               {formData.paymentMethod === 'transferencia' && (
                 <div className="p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-xs text-gray-500 dark:text-gray-400 space-y-1">
                   <p className="font-bold text-black dark:text-white uppercase tracking-wider mb-1">Datos bancarios:</p>
-                  <p>Banco: Banco Pichincha</p>
-                  <p>Tipo: Cuenta Corriente - 1234567890</p>
-                  <p>RUC/CI: 1712345678001</p>
-                  <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp al confirmar.</p>
+                  <p>Banco Pichincha</p>
+                  <p>Tipo: Cuenta Ahorros - 2205651325</p>
+                  <p>celular: 0979060750</p>
+                  <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp para confirmar.</p>
                 </div>
               )}
             </div>

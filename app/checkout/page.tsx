@@ -2,20 +2,22 @@
 
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { supabase } from '@/lib/supabase'; // <-- Importamos Supabase
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado de carga al enviar
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '', // Opcional ahora
-    cityOption: 'Quito', // 'Quito' o 'Otra'
+    email: '',
+    cityOption: 'Quito',
     customCity: '',
     address: '',
     phone: '',
-    paymentMethod: 'contra_entrega', // 'contra_entrega' o 'transferencia'
+    paymentMethod: 'contra_entrega',
   });
 
   const subtotal = (cart || []).reduce(
@@ -26,14 +28,46 @@ export default function CheckoutPage() {
   const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00;
   const total = subtotal + shippingCost;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cart || cart.length === 0) {
       alert('Tu carrito está vacío');
       return;
     }
-    setSubmitted(true);
-    clearCart();
+
+    setLoading(true);
+
+    try {
+      // 1. Preparamos los datos a enviar a Supabase
+      const finalCity = formData.cityOption === 'Quito' ? 'Quito' : formData.customCity;
+      
+      const orderPayload = {
+        customer_name: formData.name,
+        email: formData.email || null,
+        city: finalCity,
+        address: formData.address,
+        phone: formData.phone,
+        payment_method: formData.paymentMethod,
+        total: total,
+        items: cart, // Guarda el array completo de productos en formato JSON
+      };
+
+      // 2. Insertamos en la tabla 'orders'
+      const { error } = await supabase
+        .from('orders')
+        .insert([orderPayload]);
+
+      if (error) throw error;
+
+      // 3. Si todo sale bien, vaciamos carrito y mostramos éxito
+      setSubmitted(true);
+      clearCart();
+    } catch (error) {
+      console.error('Error al guardar el pedido en Supabase:', error);
+      alert('Hubo un error al procesar tu pedido. Por favor, inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -42,14 +76,7 @@ export default function CheckoutPage() {
         <div className="max-w-md w-full text-center space-y-6 border border-gray-200 dark:border-neutral-800 p-8 rounded">
           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-red-600">¡Pedido Exitoso!</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
-            Gracias por tu compra en RVRS. Hemos recibido tu pedido con pago por{' '}
-            <span className="font-bold text-black dark:text-white">
-              {formData.paymentMethod === 'contra_entrega' ? 'Pago contra entrega' : 'Transferencia bancaria'}
-            </span>{' '}
-            para enviar a{' '}
-            <span className="font-bold text-black dark:text-white">
-              {formData.cityOption === 'Quito' ? 'Quito' : formData.customCity || 'otra ciudad'}
-            </span>. Nos pondremos en contacto contigo.
+            Gracias por tu compra en RVRS. Hemos registrado tu pedido en nuestra base de datos. Nos pondremos en contacto contigo pronto.
           </p>
           <Link
             href="/"
@@ -208,9 +235,10 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors mt-6"
+              disabled={loading}
+              className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white disabled:opacity-50 transition-colors mt-6"
             >
-              Confirmar Pedido (${total.toFixed(2)})
+              {loading ? 'Procesando...' : `Confirmar Pedido ($${total.toFixed(2)})`}
             </button>
           </form>
 

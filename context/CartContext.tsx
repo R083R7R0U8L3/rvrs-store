@@ -15,8 +15,8 @@ export interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, newQuantity: number) => void;
+  removeFromCart: (id: string, size: string, color: string) => void;
+  updateQuantity: (id: string, size: string, color: string, newQuantity: number) => void;
   clearCart: () => void;
 }
 
@@ -25,7 +25,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Carga segura con validación de tipo array
+  // Carga segura desde el localStorage del navegador
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('rvrs_cart');
@@ -41,7 +41,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Guardado seguro
+  // Guardado automático en el localStorage
   useEffect(() => {
     try {
       localStorage.setItem('rvrs_cart', JSON.stringify(cart));
@@ -50,17 +50,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cart]);
 
- const addToCart = (newItem: CartItem) => {
+  const addToCart = (newItem: CartItem) => {
     setCart((prevCart) => {
       const validCart = Array.isArray(prevCart) ? prevCart : [];
       
-      // Buscamos si ya existe el producto con la EXACTA MISMA talla y color
+      // Comprobamos si ya existe el producto con la EXACTA MISMA talla y color
       const existingIndex = validCart.findIndex(
         (item) => item?.id === newItem.id && item?.size === newItem.size && item?.color === newItem.color
       );
 
       if (existingIndex > -1) {
-        // Si ya existe esa misma talla, solo sumamos la cantidad
+        // Si ya existe exactamente esa variante, solo sumamos la cantidad
         return validCart.map((item, index) =>
           index === existingIndex
             ? { ...item, quantity: item.quantity + newItem.quantity }
@@ -68,12 +68,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
       }
       
-      // Si es una talla nueva, se añade como una línea independiente en el carrito
+      // Si es una combinación nueva de talla/color, la añadimos por separado
       return [...validCart, newItem];
     });
   };
 
-const removeFromCart = (id: string, size: string, color: string) => {
+  const removeFromCart = (id: string, size: string, color: string) => {
     setCart((prevCart) =>
       Array.isArray(prevCart)
         ? prevCart.filter(
@@ -98,6 +98,7 @@ const removeFromCart = (id: string, size: string, color: string) => {
         : []
     );
   };
+
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('rvrs_cart');

@@ -227,7 +227,7 @@ export default function CheckoutPage() {
                   <p className="font-bold text-black dark:text-white uppercase tracking-wider mb-1">Datos bancarios:</p>
                   <p>Banco Pichincha</p>
                   <p>Tipo: Cuenta Ahorros - 2205651325</p>
-                  <p>celular: 0979060750</p>
+                  <p>Celular: 0979060750</p>
                   <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp para confirmar.</p>
                 </div>
               )}

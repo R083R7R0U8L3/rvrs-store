@@ -35,7 +35,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
       price: product?.base_price || 0,
       image_url: product?.image_url || '',
       size: variant.size,
-      color: variant.color,
+      color: variant.color || 'Dual blanco y negro', // <--- Aquí cambiamos el texto por defecto
       quantity: 1,
     });
 

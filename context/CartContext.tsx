@@ -73,22 +73,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const removeFromCart = (id: string) => {
-    setCart((prevCart) => (Array.isArray(prevCart) ? prevCart.filter((item) => item?.id !== id) : []));
-  };
-
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeFromCart(id);
-      return;
-    }
+const removeFromCart = (id: string, size: string, color: string) => {
     setCart((prevCart) =>
       Array.isArray(prevCart)
-        ? prevCart.map((item) => (item?.id === id ? { ...item, quantity: newQuantity } : item))
+        ? prevCart.filter(
+            (item) => !(item?.id === id && item?.size === size && item?.color === color)
+          )
         : []
     );
   };
 
+  const updateQuantity = (id: string, size: string, color: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(id, size, color);
+      return;
+    }
+    setCart((prevCart) =>
+      Array.isArray(prevCart)
+        ? prevCart.map((item) =>
+            item?.id === id && item?.size === size && item?.color === color
+              ? { ...item, quantity: newQuantity }
+              : item
+          )
+        : []
+    );
+  };
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('rvrs_cart');

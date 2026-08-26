@@ -2,14 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
-import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 export default function CarritoPage() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   // Evita desajustes de hidratación en el cliente
@@ -79,8 +76,8 @@ export default function CarritoPage() {
                   <div className="flex items-center gap-4">
                     <div className="flex items-center border border-gray-300 dark:border-neutral-700">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="px-3 py-1 font-bold hover:bg-gray-200 dark:hover:bg-neutral-800"
+                        onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity - 1)}
+                        className="px-3 py-1 font-bold hover:bg-gray-200 dark:hover:bg-neutral-800 transition-colors"
                       >
                         -
                       </button>
@@ -88,15 +85,15 @@ export default function CarritoPage() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-3 py-1 font-bold hover:bg-gray-200 dark:hover:bg-neutral-800"
+                        onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity + 1)}
+                        className="px-3 py-1 font-bold hover:bg-gray-200 dark:hover:bg-neutral-800 transition-colors"
                       >
                         +
                       </button>
                     </div>
 
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.id, item.size, item.color)}
                       className="text-xs text-gray-400 hover:text-red-600 font-bold uppercase transition-colors"
                     >
                       Eliminar
@@ -124,11 +121,16 @@ export default function CarritoPage() {
                   <span className="text-gray-500 dark:text-gray-400 uppercase text-xs font-bold">Subtotal</span>
                   <span className="font-bold">${total.toFixed(2)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 dark:text-gray-400 uppercase text-xs font-bold">Envío</span>
+                  <span className="font-bold text-green-600 uppercase text-xs">Calculado en pago</span>
+                </div>
                 <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-neutral-800 text-lg font-black">
                   <span className="uppercase">Total</span>
                   <span className="text-red-600">${total.toFixed(2)}</span>
                 </div>
               </div>
+
               <Link
                 href="/checkout"
                 className="block text-center w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"

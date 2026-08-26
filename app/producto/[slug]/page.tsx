@@ -75,11 +75,8 @@ export default async function ProductPage({
             <div className="mt-12 grid grid-cols-2 gap-4 pt-8 border-t border-gray-100 dark:border-neutral-800 transition-colors">
               <div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest mb-1 text-black dark:text-white">Envío</h4>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Entrega en 2-4 días hábiles.</p>
-              </div>
-              <div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest mb-1 text-black dark:text-white">Garantía</h4>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Devoluciones gratis por 30 días.</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Entrega gratis sector quito en 2-4 dias .</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Envios a provincia con costo adicional.</p>
               </div>
             </div>
           </div>

@@ -10,11 +10,12 @@ export default function CheckoutPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: '', // Opcional ahora
     cityOption: 'Quito', // 'Quito' o 'Otra'
     customCity: '',
     address: '',
     phone: '',
+    paymentMethod: 'contra_entrega', // 'contra_entrega' o 'transferencia'
   });
 
   const subtotal = (cart || []).reduce(
@@ -22,8 +23,7 @@ export default function CheckoutPage() {
     0
   );
 
-  // Si es otra ciudad, podemos definir un costo de envío o dejarlo calculado
-  const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00; // Ejemplo: $5 para otras ciudades
+  const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00;
   const total = subtotal + shippingCost;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,10 +42,14 @@ export default function CheckoutPage() {
         <div className="max-w-md w-full text-center space-y-6 border border-gray-200 dark:border-neutral-800 p-8 rounded">
           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-red-600">¡Pedido Exitoso!</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
-            Gracias por tu compra en RVRS. En breve nos pondremos en contacto contigo para coordinar el envío a{' '}
+            Gracias por tu compra en RVRS. Hemos recibido tu pedido con pago por{' '}
+            <span className="font-bold text-black dark:text-white">
+              {formData.paymentMethod === 'contra_entrega' ? 'Pago contra entrega' : 'Transferencia bancaria'}
+            </span>{' '}
+            para enviar a{' '}
             <span className="font-bold text-black dark:text-white">
               {formData.cityOption === 'Quito' ? 'Quito' : formData.customCity || 'otra ciudad'}
-            </span>.
+            </span>. Nos pondremos en contacto contigo.
           </p>
           <Link
             href="/"
@@ -66,7 +70,7 @@ export default function CheckoutPage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* FORMULARIO DE ENVÍO */}
+          {/* FORMULARIO DE ENVÍO Y PAGO */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">
               Información de Envío
@@ -85,10 +89,11 @@ export default function CheckoutPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Correo Electrónico</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">
+                Correo Electrónico <span className="text-gray-400 font-normal">(Opcional)</span>
+              </label>
               <input
                 type="email"
-                required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
@@ -124,7 +129,6 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              {/* Si selecciona otra ciudad, mostramos el input para especificarla */}
               {formData.cityOption === 'Otra' && (
                 <div>
                   <input
@@ -133,7 +137,7 @@ export default function CheckoutPage() {
                     value={formData.customCity}
                     onChange={(e) => setFormData({ ...formData, customCity: e.target.value })}
                     className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
-                    placeholder="Especifica tu ciudad (Ej. Guayaquil, Cuenca...)"
+                    placeholder="Especifica tu ciudad..."
                   />
                 </div>
               )}
@@ -161,6 +165,45 @@ export default function CheckoutPage() {
                 className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
                 placeholder="0991234567"
               />
+            </div>
+
+            {/* MÉTODO DE PAGO */}
+            <div className="pt-4 border-t border-gray-200 dark:border-neutral-800">
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Método de Pago</label>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'contra_entrega' })}
+                  className={`py-3 text-xs font-bold uppercase border transition-all ${
+                    formData.paymentMethod === 'contra_entrega'
+                      ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
+                      : 'border-gray-200 dark:border-neutral-800 text-gray-500 hover:border-black dark:hover:border-white'
+                  }`}
+                >
+                  Pago Contra Entrega
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'transferencia' })}
+                  className={`py-3 text-xs font-bold uppercase border transition-all ${
+                    formData.paymentMethod === 'transferencia'
+                      ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
+                      : 'border-gray-200 dark:border-neutral-800 text-gray-500 hover:border-black dark:hover:border-white'
+                  }`}
+                >
+                  Transferencia
+                </button>
+              </div>
+
+              {formData.paymentMethod === 'transferencia' && (
+                <div className="p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                  <p className="font-bold text-black dark:text-white uppercase tracking-wider mb-1">Datos bancarios:</p>
+                  <p>Banco: Banco Pichincha</p>
+                  <p>Tipo: Cuenta Corriente - 1234567890</p>
+                  <p>RUC/CI: 1712345678001</p>
+                  <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp al confirmar.</p>
+                </div>
+              )}
             </div>
 
             <button
@@ -198,6 +241,12 @@ export default function CheckoutPage() {
                 <span className="text-gray-500 uppercase text-xs font-bold">Envío</span>
                 <span className={`font-bold uppercase text-xs ${shippingCost === 0 ? 'text-green-600' : 'text-black dark:text-white'}`}>
                   {shippingCost === 0 ? 'Gratis (Quito)' : `$${shippingCost.toFixed(2)}`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 uppercase text-xs font-bold">Método de pago</span>
+                <span className="font-bold text-xs uppercase">
+                  {formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}
                 </span>
               </div>
               <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-neutral-800 text-lg font-black">

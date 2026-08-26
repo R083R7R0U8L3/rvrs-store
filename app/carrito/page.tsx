@@ -124,10 +124,6 @@ export default function CarritoPage() {
                   <span className="text-gray-500 dark:text-gray-400 uppercase text-xs font-bold">Subtotal</span>
                   <span className="font-bold">${total.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400 uppercase text-xs font-bold">Envío</span>
-                  <span className="font-bold text-green-600 uppercase text-xs">Gratis</span>
-                </div>
                 <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-neutral-800 text-lg font-black">
                   <span className="uppercase">Total</span>
                   <span className="text-red-600">${total.toFixed(2)}</span>

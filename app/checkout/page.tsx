@@ -1,0 +1,213 @@
+'use client';
+
+import { useState } from 'react';
+import { useCart } from '@/context/CartContext';
+import Link from 'next/link';
+
+export default function CheckoutPage() {
+  const { cart, clearCart } = useCart();
+  const [submitted, setSubmitted] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    cityOption: 'Quito', // 'Quito' o 'Otra'
+    customCity: '',
+    address: '',
+    phone: '',
+  });
+
+  const subtotal = (cart || []).reduce(
+    (acc, item) => acc + (item?.price || 0) * (item?.quantity || 0),
+    0
+  );
+
+  // Si es otra ciudad, podemos definir un costo de envío o dejarlo calculado
+  const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00; // Ejemplo: $5 para otras ciudades
+  const total = subtotal + shippingCost;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cart || cart.length === 0) {
+      alert('Tu carrito está vacío');
+      return;
+    }
+    setSubmitted(true);
+    clearCart();
+  };
+
+  if (submitted) {
+    return (
+      <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white py-20 px-4 flex items-center justify-center transition-colors duration-300">
+        <div className="max-w-md w-full text-center space-y-6 border border-gray-200 dark:border-neutral-800 p-8 rounded">
+          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-red-600">¡Pedido Exitoso!</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
+            Gracias por tu compra en RVRS. En breve nos pondremos en contacto contigo para coordinar el envío a{' '}
+            <span className="font-bold text-black dark:text-white">
+              {formData.cityOption === 'Quito' ? 'Quito' : formData.customCity || 'otra ciudad'}
+            </span>.
+          </p>
+          <Link
+            href="/"
+            className="inline-block w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
+          >
+            Volver a la Tienda
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white py-12 px-4 md:py-20 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-black uppercase tracking-tighter mb-12 italic">
+          Finalizar <span className="text-red-600">Compra</span>
+        </h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* FORMULARIO DE ENVÍO */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">
+              Información de Envío
+            </h2>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Nombre Completo</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+                placeholder="Ej. Juan Pérez"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Correo Electrónico</label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+
+            {/* SELECCIÓN DE CIUDAD */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Ciudad de Destino</label>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, cityOption: 'Quito', customCity: '' })}
+                  className={`py-3 text-xs font-bold uppercase border transition-all ${
+                    formData.cityOption === 'Quito'
+                      ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
+                      : 'border-gray-200 dark:border-neutral-800 text-gray-500 hover:border-black dark:hover:border-white'
+                  }`}
+                >
+                  Quito (Envío Gratis)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, cityOption: 'Otra' })}
+                  className={`py-3 text-xs font-bold uppercase border transition-all ${
+                    formData.cityOption === 'Otra'
+                      ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
+                      : 'border-gray-200 dark:border-neutral-800 text-gray-500 hover:border-black dark:hover:border-white'
+                  }`}
+                >
+                  Otra Ciudad
+                </button>
+              </div>
+
+              {/* Si selecciona otra ciudad, mostramos el input para especificarla */}
+              {formData.cityOption === 'Otra' && (
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={formData.customCity}
+                    onChange={(e) => setFormData({ ...formData, customCity: e.target.value })}
+                    className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+                    placeholder="Especifica tu ciudad (Ej. Guayaquil, Cuenca...)"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Dirección de Entrega</label>
+              <input
+                type="text"
+                required
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+                placeholder="Calle principal, numeración y referencias"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest mb-2">Teléfono de Contacto</label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+                placeholder="0991234567"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors mt-6"
+            >
+              Confirmar Pedido (${total.toFixed(2)})
+            </button>
+          </form>
+
+          {/* RESUMEN DEL PEDIDO */}
+          <div className="bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 p-6 h-fit space-y-6">
+            <h2 className="font-black uppercase text-xl tracking-tight pb-4 border-b border-gray-200 dark:border-neutral-800">
+              Resumen del Pedido
+            </h2>
+
+            <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
+              {cart.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold uppercase block">{item.name}</span>
+                    <span className="text-gray-400">Talla: {item.size} | Cant: {item.quantity}</span>
+                  </div>
+                  <span className="font-bold text-red-600">${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-gray-200 dark:border-neutral-800 space-y-3 text-sm font-medium">
+              <div className="flex justify-between">
+                <span className="text-gray-500 uppercase text-xs font-bold">Subtotal</span>
+                <span className="font-bold">${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 uppercase text-xs font-bold">Envío</span>
+                <span className={`font-bold uppercase text-xs ${shippingCost === 0 ? 'text-green-600' : 'text-black dark:text-white'}`}>
+                  {shippingCost === 0 ? 'Gratis (Quito)' : `$${shippingCost.toFixed(2)}`}
+                </span>
+              </div>
+              <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-neutral-800 text-lg font-black">
+                <span className="uppercase">Total</span>
+                <span className="text-red-600">${total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

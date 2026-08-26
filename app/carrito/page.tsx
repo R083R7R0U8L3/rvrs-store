@@ -133,13 +133,12 @@ export default function CarritoPage() {
                   <span className="text-red-600">${total.toFixed(2)}</span>
                 </div>
               </div>
-
-              <button
-                onClick={() => alert('¡Procediendo al pago!')}
-                className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
+              <Link
+                href="/checkout"
+                className="block text-center w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
               >
                 Finalizar Compra
-              </button>
+              </Link>
             </div>
           </div>
         )}

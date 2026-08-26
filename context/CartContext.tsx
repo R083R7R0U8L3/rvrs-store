@@ -50,17 +50,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cart]);
 
-  const addToCart = (newItem: CartItem) => {
+ const addToCart = (newItem: CartItem) => {
     setCart((prevCart) => {
       const validCart = Array.isArray(prevCart) ? prevCart : [];
-      const existing = validCart.find((item) => item?.id === newItem.id);
-      if (existing) {
-        return validCart.map((item) =>
-          item?.id === newItem.id
-            ? { ...item, quantity: item.quantity + 1 }
+      
+      // Buscamos si ya existe el producto con la EXACTA MISMA talla y color
+      const existingIndex = validCart.findIndex(
+        (item) => item?.id === newItem.id && item?.size === newItem.size && item?.color === newItem.color
+      );
+
+      if (existingIndex > -1) {
+        // Si ya existe esa misma talla, solo sumamos la cantidad
+        return validCart.map((item, index) =>
+          index === existingIndex
+            ? { ...item, quantity: item.quantity + newItem.quantity }
             : item
         );
       }
+      
+      // Si es una talla nueva, se añade como una línea independiente en el carrito
       return [...validCart, newItem];
     });
   };

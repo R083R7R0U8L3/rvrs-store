@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 
 interface SliderProps {
@@ -10,6 +10,33 @@ interface SliderProps {
 
 export default function ProductImageSlider({ images, productName }: SliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Referencias para calcular el deslizamiento con el dedo (Swipe)
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 50; // Mínimo de pixeles para considerar un deslizamiento
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
@@ -28,10 +55,15 @@ export default function ProductImageSlider({ images, productName }: SliderProps)
   }
 
   return (
-    <div className="relative group w-full aspect-[3/4] bg-gray-50 dark:bg-neutral-900 overflow-hidden">
+    <div 
+      className="relative group w-full aspect-[3/4] bg-gray-50 dark:bg-neutral-900 overflow-hidden touch-pan-y select-none"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Contenedor deslizable */}
       <div 
-        className="flex w-full h-full transition-transform duration-500 ease-out"
+        className="flex w-full h-full transition-transform duration-300 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((img, idx) => (
@@ -41,9 +73,8 @@ export default function ProductImageSlider({ images, productName }: SliderProps)
               alt={`${productName} vista ${idx + 1}`}
               fill
               priority={idx === 0}
-              className="object-cover"
+              className="object-cover pointer-events-none"
             />
-            {/* Logo de agua solo en la primera */}
             {idx === 0 && (
               <div className="absolute bottom-6 left-6 text-white/20 dark:text-white/10 font-black text-4xl pointer-events-none uppercase italic z-10">
                 RVRS
@@ -53,16 +84,16 @@ export default function ProductImageSlider({ images, productName }: SliderProps)
         ))}
       </div>
 
-      {/* Flechas de navegación (solo visibles en hover) */}
+      {/* Flechas de navegación (computadora) */}
       <button 
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/50 text-black dark:text-white w-10 h-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-white dark:hover:bg-black border border-transparent dark:border-neutral-700"
+        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/50 text-black dark:text-white w-10 h-10 items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-white dark:hover:bg-black border border-transparent dark:border-neutral-700"
       >
         ←
       </button>
       <button 
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/50 text-black dark:text-white w-10 h-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-white dark:hover:bg-black border border-transparent dark:border-neutral-700"
+        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-black/50 text-black dark:text-white w-10 h-10 items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-white dark:hover:bg-black border border-transparent dark:border-neutral-700"
       >
         →
       </button>

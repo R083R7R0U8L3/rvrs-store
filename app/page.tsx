@@ -44,7 +44,7 @@ export default function Home() {
     <main className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
       {/* SECCIÓN HERO / TITULAR */}
       <section className="text-center py-16 md:py-24 px-4 border-b border-gray-100 dark:border-neutral-900">
-        <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter italic">
+        <h1 className="text-4xl md:text-7xl font-akira uppercase tracking-wider text-black dark:text-white">
           RVRS <span className="text-red-600">COLLECTION</span>
         </h1>
         <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">
@@ -63,7 +63,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products?.map((product) => (
-              <div 
+              <div
                 key={product?.id || Math.random()}
                 className="group relative bg-gray-50 dark:bg-neutral-900/60 border border-gray-100 dark:border-neutral-800 p-4 transition-all duration-300 hover:shadow-2xl dark:hover:border-neutral-700 flex flex-col justify-between"
               >
@@ -104,7 +104,7 @@ export default function Home() {
 
                 {/* Acciones */}
                 <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-neutral-800">
-                  <Link 
+                  <Link
                     href={`/producto/${product?.slug || ''}`}
                     className="block text-center w-full bg-transparent border-2 border-black dark:border-white text-black dark:text-white py-3 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                   >

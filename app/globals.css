@@ -15,3 +15,16 @@ body {
   background: white;
   color: #1a1a1a;
 }
+
+@font-face {
+  font-family: 'Akira';
+  src: url('/fonts/akira.otf') format('opentype'); /* Cambia a format('truetype') si tu archivo es .ttf */
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Opcional: creamos una clase de utilidad rápida */
+.font-akira {
+  font-family: 'Akira', sans-serif;
+}

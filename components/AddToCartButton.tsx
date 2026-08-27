@@ -22,9 +22,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const [showToast, setShowToast] = useState(false);
   
-  // Obtenemos las variantes de Supabase o un respaldo por defecto
   const variants = product?.product_variants || [];
-  
   const availableSizes = variants.length > 0 
     ? variants.map(v => v.size) 
     : ['S', 'M', 'L', 'XL', 'XXL'];
@@ -45,18 +43,17 @@ export default function AddToCartButton({ product }: { product: Product }) {
       quantity: 1,
     });
 
-    // Activamos la notificación flotante (Toast)
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
-    }, 3000); // Se oculta automáticamente en 3 segundos
+    }, 3000);
   };
 
   return (
-    <div className="space-y-8 mt-8 relative">
-      {/* NOTIFICACIÓN FLOTANTE TIPO MENSAJE */}
+    <div className="space-y-8 mt-8">
+      {/* NOTIFICACIÓN FLOTANTE FIJA EN LA ESQUINA SUPERIOR DERECHA */}
       {showToast && (
-        <div className="absolute -top-16 right-0 bg-black text-white dark:bg-white dark:text-black text-[10px] font-black uppercase tracking-widest px-4 py-3 shadow-2xl transition-all duration-300 animate-bounce z-50 flex items-center gap-2 border border-neutral-800 dark:border-neutral-200">
+        <div className="fixed top-20 right-6 bg-black text-white dark:bg-white dark:text-black text-[10px] font-black uppercase tracking-widest px-5 py-4 shadow-2xl transition-all duration-300 animate-slide-in z-50 flex items-center gap-3 border border-neutral-800 dark:border-neutral-200">
           <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
           ¡Producto agregado exitosamente!
         </div>

@@ -20,14 +20,16 @@ interface Product {
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addToCart } = useCart();
+  const [showToast, setShowToast] = useState(false);
   
+  // Obtenemos las variantes de Supabase o un respaldo por defecto
   const variants = product?.product_variants || [];
+  
   const availableSizes = variants.length > 0 
     ? variants.map(v => v.size) 
     : ['S', 'M', 'L', 'XL', 'XXL'];
 
   const [selectedSize, setSelectedSize] = useState<string>(availableSizes[0] || 'M');
-  const [showSuccess, setShowSuccess] = useState(false); // Estado para mostrar el aviso
 
   const handleAdd = () => {
     const currentVariant = variants.find(v => v.size === selectedSize);
@@ -43,15 +45,23 @@ export default function AddToCartButton({ product }: { product: Product }) {
       quantity: 1,
     });
 
-    // Mostramos el aviso y lo ocultamos automáticamente a los 3 segundos
-    setShowSuccess(true);
+    // Activamos la notificación flotante (Toast)
+    setShowToast(true);
     setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+      setShowToast(false);
+    }, 3000); // Se oculta automáticamente en 3 segundos
   };
 
   return (
-    <div className="space-y-8 mt-8">
+    <div className="space-y-8 mt-8 relative">
+      {/* NOTIFICACIÓN FLOTANTE TIPO MENSAJE */}
+      {showToast && (
+        <div className="absolute -top-16 right-0 bg-black text-white dark:bg-white dark:text-black text-[10px] font-black uppercase tracking-widest px-4 py-3 shadow-2xl transition-all duration-300 animate-bounce z-50 flex items-center gap-2 border border-neutral-800 dark:border-neutral-200">
+          <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+          ¡Producto agregado exitosamente!
+        </div>
+      )}
+
       {/* Selector de Tallas */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
@@ -80,23 +90,14 @@ export default function AddToCartButton({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Botón de añadir y aviso sutil al lado/abajo */}
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
-        >
-          Añadir al Carrito
-        </button>
-
-        {/* Mensaje de aviso integrado en la interfaz */}
-        {showSuccess && (
-          <div className="p-3 bg-green-50 dark:bg-neutral-900 border border-green-200 dark:border-neutral-800 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider text-center animate-fadeIn transition-all">
-            ✓ ¡Añadido al carrito (Talla: {selectedSize})!
-          </div>
-        )}
-      </div>
+      {/* Botón Añadir */}
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
+      >
+        Añadir al Carrito
+      </button>
     </div>
   );
 }

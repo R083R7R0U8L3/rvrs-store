@@ -7,6 +7,7 @@ interface Variant {
   id: string;
   size: string;
   color: string;
+  sku?: string;
 }
 
 interface Product {
@@ -20,26 +21,33 @@ interface Product {
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addToCart } = useCart();
   
-  // Lista fija de tallas para mantener el diseño visual siempre igual
-  const fixedSizes = ['S', 'M', 'L', 'XL', 'XXL'];
-  const [selectedSize, setSelectedSize] = useState<string>('M');
+  const variants = product?.product_variants || [];
+  const availableSizes = variants.length > 0 
+    ? variants.map(v => v.size) 
+    : ['S', 'M', 'L', 'XL', 'XXL'];
+
+  const [selectedSize, setSelectedSize] = useState<string>(availableSizes[0] || 'M');
+  const [showSuccess, setShowSuccess] = useState(false); // Estado para mostrar el aviso
 
   const handleAdd = () => {
-    const variant = (product?.product_variants || []).find(v => v.size === selectedSize) 
-      || product?.product_variants?.[0] 
-      || { size: selectedSize, color: 'Negro' };
+    const currentVariant = variants.find(v => v.size === selectedSize);
+    const finalColor = currentVariant?.color || 'Dual blanco y negro';
 
     addToCart({
       id: product?.id || Math.random().toString(),
       name: product?.name || 'Producto',
       price: product?.base_price || 0,
       image_url: product?.image_url || '',
-      size: variant.size,
-      color: variant.color || 'Dual blanco y negro', // <--- Aquí cambiamos el texto por defecto
+      size: selectedSize,
+      color: finalColor,
       quantity: 1,
     });
 
-    alert(`¡Producto (Talla: ${selectedSize}) añadido al carrito!`);
+    // Mostramos el aviso y lo ocultamos automáticamente a los 3 segundos
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 3000);
   };
 
   return (
@@ -55,9 +63,10 @@ export default function AddToCartButton({ product }: { product: Product }) {
           </span>
         </div>
         <div className="flex flex-wrap gap-3">
-          {fixedSizes.map((size) => (
+          {availableSizes.map((size) => (
             <button
               key={size}
+              type="button"
               onClick={() => setSelectedSize(size)}
               className={`w-14 h-12 flex items-center justify-center text-xs font-bold transition-all ${
                 selectedSize === size
@@ -71,13 +80,23 @@ export default function AddToCartButton({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Botón Añadir */}
-      <button
-        onClick={handleAdd}
-        className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
-      >
-        Añadir al Carrito
-      </button>
+      {/* Botón de añadir y aviso sutil al lado/abajo */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="w-full bg-black dark:bg-white text-white dark:text-black py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-600 dark:hover:bg-red-600 dark:hover:text-white transition-colors"
+        >
+          Añadir al Carrito
+        </button>
+
+        {/* Mensaje de aviso integrado en la interfaz */}
+        {showSuccess && (
+          <div className="p-3 bg-green-50 dark:bg-neutral-900 border border-green-200 dark:border-neutral-800 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider text-center animate-fadeIn transition-all">
+            ✓ ¡Añadido al carrito (Talla: {selectedSize})!
+          </div>
+        )}
+      </div>
     </div>
   );
 }

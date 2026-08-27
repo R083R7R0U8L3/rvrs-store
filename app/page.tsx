@@ -48,7 +48,7 @@ export default function Home() {
           RVRS <span className="text-red-600">COLLECTION</span>
         </h1>
         <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">
-          Essentials for the modern rebel
+         MODERN      REBEL       DESIGN
         </p>
       </section>
 

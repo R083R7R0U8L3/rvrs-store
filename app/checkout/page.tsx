@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
-import { supabase } from '@/lib/supabase'; // <-- Importamos Supabase
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false); // Estado de carga al enviar
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,7 +38,6 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      // 1. Preparamos los datos a enviar a Supabase
       const finalCity = formData.cityOption === 'Quito' ? 'Quito' : formData.customCity;
       
       const orderPayload = {
@@ -49,21 +48,44 @@ export default function CheckoutPage() {
         phone: formData.phone,
         payment_method: formData.paymentMethod,
         total: total,
-        items: cart, // Guarda el array completo de productos en formato JSON
+        items: cart,
       };
 
-      // 2. Insertamos en la tabla 'orders'
+      // 1. Guardamos el pedido en la tabla 'orders' de Supabase
       const { error } = await supabase
         .from('orders')
         .insert([orderPayload]);
 
       if (error) throw error;
 
-      // 3. Si todo sale bien, vaciamos carrito y mostramos éxito
-      setSubmitted(true);
+      // 2. Armamos el mensaje automático para tu WhatsApp
+      const itemsList = cart
+        .map(i => `- ${i.quantity}x ${i.name} (Talla: ${i.size}, Color: ${i.color}) - $${i.price * i.quantity}`)
+        .join('\n');
+
+      const whatsappMessage = encodeURIComponent(
+        `🔥 *NUEVO PEDIDO - RVRS* 🔥\n\n` +
+        `👤 *Cliente:* ${formData.name}\n` +
+        `📞 *Teléfono:* ${formData.phone}\n` +
+        `🏙️ *Ciudad:* ${finalCity}\n` +
+        `📍 *Dirección:* ${formData.address}\n` +
+        `💳 *Método de Pago:* ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
+        `🛍️ *Productos:*\n${itemsList}\n\n` +
+        `💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`
+      );
+
+      // 👉 CAMBIA ESTE NÚMERO POR TU WHATSAPP REAL (Ej: 593991234567)
+      const myWhatsAppNumber = '593979060750'; 
+
+      // 3. Vaciamos el carrito local y mostramos la pantalla de éxito
       clearCart();
+      setSubmitted(true);
+
+      // 4. Abrimos el chat de WhatsApp con el pedido redactado
+      window.open(`https://wa.me/${myWhatsAppNumber}?text=${whatsappMessage}`, '_blank');
+
     } catch (error) {
-      console.error('Error al guardar el pedido en Supabase:', error);
+      console.error('Error al guardar el pedido:', error);
       alert('Hubo un error al procesar tu pedido. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
@@ -76,7 +98,7 @@ export default function CheckoutPage() {
         <div className="max-w-md w-full text-center space-y-6 border border-gray-200 dark:border-neutral-800 p-8 rounded">
           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-red-600">¡Pedido Exitoso!</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
-            Gracias por tu compra en RVRS. Hemos registrado tu pedido en nuestra base de datos. Nos pondremos en contacto contigo pronto.
+            Gracias por tu compra en RVRS. Tu pedido se ha registrado correctamente y se ha abierto WhatsApp para notificarnos.
           </p>
           <Link
             href="/"
@@ -97,7 +119,7 @@ export default function CheckoutPage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* FORMULARIO DE ENVÍO Y PAGO */}
+          {/* FORMULARIO */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">
               Información de Envío
@@ -225,10 +247,10 @@ export default function CheckoutPage() {
               {formData.paymentMethod === 'transferencia' && (
                 <div className="p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-xs text-gray-500 dark:text-gray-400 space-y-1">
                   <p className="font-bold text-black dark:text-white uppercase tracking-wider mb-1">Datos bancarios:</p>
-                  <p>Banco Pichincha</p>
-                  <p>Tipo: Cuenta Ahorros - 2205651325</p>
-                  <p>Celular: 0979060750</p>
-                  <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp para confirmar.</p>
+                  <p>Banco: Banco Pichincha</p>
+                  <p>Tipo: Cuenta Corriente - 1234567890</p>
+                  <p>RUC/CI: 1712345678001</p>
+                  <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp al confirmar.</p>
                 </div>
               )}
             </div>

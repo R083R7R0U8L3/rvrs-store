@@ -29,16 +29,16 @@ export default function RootLayout({
             {/* --- NAVEGACIÓN GLOBAL --- */}
             <nav className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-100 dark:border-neutral-800 transition-colors duration-300">
               <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                
+
                 {/* Logo botón principal de la marca RVRS */}
                 <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                  <Image 
-                    src="/logo.png" 
-                    alt="RVRS Logo" 
-                    width={120} 
-                    height={40} 
-                    className="h-8 w-auto object-contain dark:invert" 
-                    priority 
+                  <Image
+                    src="/logo.png"
+                    alt="RVRS Logo"
+                    width={120}
+                    height={40}
+                    className="h-8 w-auto object-contain dark:invert"
+                    priority
                   />
                 </Link>
 
@@ -65,8 +65,15 @@ export default function RootLayout({
                 </div>
                 <div>
                   <h4 className="font-bold uppercase mb-4 tracking-widest">Síguenos</h4>
-                  <p className="text-gray-400 text-sm">Instagram</p>
-                </div>  
+                  <a
+                    href="https://www.instagram.com/rvrs.streetwear/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-white dark:hover:text-white transition-colors"
+                  >
+                    Instagram
+                  </a>
+                </div>
               </div>
               <div className="text-center text-gray-600 text-[10px] mt-12 pt-8 border-t border-gray-800 uppercase tracking-widest">
                 © 2026 RVRS Store - Todos los derechos reservados

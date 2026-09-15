@@ -75,7 +75,7 @@ export default function CheckoutPage() {
       );
 
       // 👉 CAMBIA ESTE NÚMERO POR TU WHATSAPP REAL (Ej: 593991234567)
-      const myWhatsAppNumber = '593979060750'; 
+      const myWhatsAppNumber = '593978805889'; 
 
       // 3. Vaciamos el carrito local y mostramos la pantalla de éxito
       clearCart();

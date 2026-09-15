@@ -64,17 +64,9 @@ export default function RootLayout({
                   <p className="text-gray-400 text-sm">Elevando lo esencial a través del diseño.</p>
                 </div>
                 <div>
-                  <h4 className="font-bold uppercase mb-4 tracking-widest">Ayuda</h4>
-                  <ul className="text-gray-400 text-sm space-y-2">
-                    <li>Envíos</li>
-                    <li>Devoluciones</li>
-                    <li>Contacto</li>
-                  </ul>
-                </div>
-                <div>
                   <h4 className="font-bold uppercase mb-4 tracking-widest">Síguenos</h4>
-                  <p className="text-gray-400 text-sm">Instagram / TikTok</p>
-                </div>
+                  <p className="text-gray-400 text-sm">Instagram</p>
+                </div>  
               </div>
               <div className="text-center text-gray-600 text-[10px] mt-12 pt-8 border-t border-gray-800 uppercase tracking-widest">
                 © 2026 RVRS Store - Todos los derechos reservados

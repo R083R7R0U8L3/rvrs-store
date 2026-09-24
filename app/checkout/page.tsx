@@ -58,35 +58,43 @@ export default function CheckoutPage() {
 
       if (error) throw error;
 
-      // 2. Preparamos el mensaje detallado para Telegram (Solo para ti)
+      // 2. Armamos el mensaje para Telegram (Texto plano sin errores de formato)
       const itemsList = cart
         .map(i => `• ${i.quantity}x ${i.name} (Talla: ${i.size}, Color: ${i.color}) - $${i.price * i.quantity}`)
         .join('\n');
 
       const telegramMessage = 
-        `🚨 *NUEVO PEDIDO EN RVRS* 🚨\n\n` +
-        `👤 *Cliente:* ${formData.name}\n` +
-        `📞 *Teléfono:* ${formData.phone}\n` +
-        `🏙️ *Ciudad:* ${finalCity}\n` +
-        `📍 *Dirección:* ${formData.address}\n` +
-        `💳 *Pago:* ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
-        `🛍️ *Productos:*\n${itemsList}\n\n` +
-        `💰 *TOTAL: $${total.toFixed(2)}*`;
+        `NUEVO PEDIDO EN RVRS\n\n` +
+        `Cliente: ${formData.name}\n` +
+        `Teléfono: ${formData.phone}\n` +
+        `Ciudad: ${finalCity}\n` +
+        `Dirección: ${formData.address}\n` +
+        `Pago: ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
+        `Productos:\n${itemsList}\n\n` +
+        `TOTAL: $${total.toFixed(2)}`;
 
-      // 3. Enviamos la notificación a Telegram en segundo plano de forma privada
+      // 3. Enviamos la notificación a Telegram y revisamos si hubo error en consola
       const botToken = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN;
       const chatId = process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID;
 
       if (botToken && chatId) {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: telegramMessage,
-            parse_mode: 'Markdown',
-          }),
-        }).catch(err => console.error('Error enviando notificación a Telegram:', err));
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: telegramMessage,
+            }),
+          });
+          
+          const data = await res.json();
+          if (!data.ok) {
+            console.error('Error detallado de Telegram:', data);
+          }
+        } catch (err) {
+          console.error('Error de red al enviar a Telegram:', err);
+        }
       }
 
       // 4. Preparamos y abrimos WhatsApp (conservando tu funcionalidad de WhatsApp)

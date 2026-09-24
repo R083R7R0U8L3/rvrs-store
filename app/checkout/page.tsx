@@ -102,7 +102,7 @@ export default function CheckoutPage() {
       );
 
       // 👉 Cambia este número por tu WhatsApp real (ej: 593991234567)
-      const myWhatsAppNumber = '593991234567'; 
+      const myWhatsAppNumber = '593978805889'; 
       window.open(`https://wa.me/${myWhatsAppNumber}?text=${whatsappMessage}`, '_blank');
 
       // 5. Vaciamos carrito y mostramos éxito

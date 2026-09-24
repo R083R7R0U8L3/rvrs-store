@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00;
   const total = subtotal + shippingCost;
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cart || cart.length === 0) {
       alert('Tu carrito está vacío');
@@ -58,9 +58,9 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       if (error) throw error;
 
-      // 2. Armamos el mensaje para Telegram
+      // 2. Preparamos el mensaje detallado para Telegram (Solo para ti)
       const itemsList = cart
-        .map(i => `• ${i.quantity}x ${i.name} (Talla: ${i.size}) - $${i.price * i.quantity}`)
+        .map(i => `• ${i.quantity}x ${i.name} (Talla: ${i.size}, Color: ${i.color}) - $${i.price * i.quantity}`)
         .join('\n');
 
       const telegramMessage = 
@@ -73,7 +73,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         `🛍️ *Productos:*\n${itemsList}\n\n` +
         `💰 *TOTAL: $${total.toFixed(2)}*`;
 
-      // 3. Enviamos la notificación a Telegram en segundo plano
+      // 3. Enviamos la notificación a Telegram en segundo plano de forma privada
       const botToken = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN;
       const chatId = process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID;
 
@@ -89,7 +89,23 @@ const handleSubmit = async (e: React.FormEvent) => {
         }).catch(err => console.error('Error enviando notificación a Telegram:', err));
       }
 
-      // 4. Vaciamos carrito y mostramos éxito
+      // 4. Preparamos y abrimos WhatsApp (conservando tu funcionalidad de WhatsApp)
+      const whatsappMessage = encodeURIComponent(
+        `🔥 *NUEVO PEDIDO - RVRS* 🔥\n\n` +
+        `👤 *Cliente:* ${formData.name}\n` +
+        `📞 *Teléfono:* ${formData.phone}\n` +
+        `🏙️ *Ciudad:* ${finalCity}\n` +
+        `📍 *Dirección:* ${formData.address}\n` +
+        `💳 *Método de Pago:* ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
+        `🛍️ *Productos:*\n${cart.map(i => `- ${i.quantity}x${i.name} (Talla: ${i.size}) -$${i.price * i.quantity}`).join('\n')}\n\n` +
+        `💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`
+      );
+
+      // 👉 Cambia este número por tu WhatsApp real (ej: 593991234567)
+      const myWhatsAppNumber = '593991234567'; 
+      window.open(`https://wa.me/${myWhatsAppNumber}?text=${whatsappMessage}`, '_blank');
+
+      // 5. Vaciamos carrito y mostramos éxito
       clearCart();
       setSubmitted(true);
 
@@ -107,7 +123,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="max-w-md w-full text-center space-y-6 border border-gray-200 dark:border-neutral-800 p-8 rounded">
           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-red-600">¡Pedido Exitoso!</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
-            Gracias por tu compra en RVRS. Tu pedido se ha registrado correctamente y se ha abierto WhatsApp para notificarnos.
+            Gracias por tu compra en RVRS. Tu pedido se ha registrado con éxito, te ha llegado la notificación a Telegram y se ha abierto WhatsApp.
           </p>
           <Link
             href="/"

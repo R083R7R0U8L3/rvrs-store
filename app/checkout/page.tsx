@@ -58,7 +58,7 @@ export default function CheckoutPage() {
 
       if (error) throw error;
 
-      // 2. Armamos el mensaje para Telegram (Texto plano sin errores de formato)
+      // 2. Armamos el mensaje para Telegram
       const itemsList = cart
         .map(i => `• ${i.quantity}x ${i.name} (Talla: ${i.size}, Color: ${i.color}) - $${i.price * i.quantity}`)
         .join('\n');
@@ -73,31 +73,27 @@ export default function CheckoutPage() {
         `Productos:\n${itemsList}\n\n` +
         `TOTAL: $${total.toFixed(2)}`;
 
-      // 3. Enviamos la notificación a Telegram y revisamos si hubo error en consola
-      const botToken = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN;
-      const chatId = process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID;
+      // 3. Enviamos la notificación a Telegram con tus credenciales directas
+      const botToken = '8872059794:AAFlaqkDkvuIAIW_D0tv1rwqU4TW60oRJug';
+      const chatId = '8799487920';
 
-      if (botToken && chatId) {
-        try {
-          const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: telegramMessage,
-            }),
-          });
-          
-          const data = await res.json();
-          if (!data.ok) {
-            console.error('Error detallado de Telegram:', data);
-          }
-        } catch (err) {
-          console.error('Error de red al enviar a Telegram:', err);
-        }
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: telegramMessage,
+          }),
+        });
+        
+        const data = await res.json();
+        console.log('Respuesta de Telegram:', data);
+      } catch (err) {
+        console.error('Error de red al enviar a Telegram:', err);
       }
 
-      // 4. Preparamos y abrimos WhatsApp (conservando tu funcionalidad de WhatsApp)
+      // 4. Preparamos y abrimos WhatsApp
       const whatsappMessage = encodeURIComponent(
         `🔥 *NUEVO PEDIDO - RVRS* 🔥\n\n` +
         `👤 *Cliente:* ${formData.name}\n` +
@@ -109,7 +105,6 @@ export default function CheckoutPage() {
         `💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`
       );
 
-      // 👉 Cambia este número por tu WhatsApp real (ej: 593991234567)
       const myWhatsAppNumber = '593978805889'; 
       window.open(`https://wa.me/${myWhatsAppNumber}?text=${whatsappMessage}`, '_blank');
 
@@ -280,9 +275,8 @@ export default function CheckoutPage() {
               {formData.paymentMethod === 'transferencia' && (
                 <div className="p-4 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-xs text-gray-500 dark:text-gray-400 space-y-1">
                   <p className="font-bold text-black dark:text-white uppercase tracking-wider mb-1">Datos bancarios:</p>
-                  <p>Banco: Banco Pichincha</p>
-                  <p>Tipo: Cuenta Corriente - 1234567890</p>
-                  <p>RUC/CI: 1712345678001</p>
+                  <p>Banco Pichincha</p>
+                  <p>Cuenta Ahorros - 1234567890</p>
                   <p className="text-[10px] text-red-500 mt-2">* Envíanos el comprobante por WhatsApp al confirmar.</p>
                 </div>
               )}

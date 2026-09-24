@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const shippingCost = formData.cityOption === 'Quito' ? 0 : 5.00;
   const total = subtotal + shippingCost;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cart || cart.length === 0) {
       alert('Tu carrito está vacío');
@@ -51,41 +51,50 @@ export default function CheckoutPage() {
         items: cart,
       };
 
-      // 1. Guardamos el pedido en la tabla 'orders' de Supabase
+      // 1. Guardamos el pedido en Supabase
       const { error } = await supabase
         .from('orders')
         .insert([orderPayload]);
 
       if (error) throw error;
 
-      // 2. Armamos el mensaje automático para tu WhatsApp
+      // 2. Armamos el mensaje para Telegram
       const itemsList = cart
-        .map(i => `- ${i.quantity}x ${i.name} (Talla: ${i.size}, Color: ${i.color}) - $${i.price * i.quantity}`)
+        .map(i => `• ${i.quantity}x ${i.name} (Talla: ${i.size}) - $${i.price * i.quantity}`)
         .join('\n');
 
-      const whatsappMessage = encodeURIComponent(
-        `🔥 *NUEVO PEDIDO - RVRS* 🔥\n\n` +
+      const telegramMessage = 
+        `🚨 *NUEVO PEDIDO EN RVRS* 🚨\n\n` +
         `👤 *Cliente:* ${formData.name}\n` +
         `📞 *Teléfono:* ${formData.phone}\n` +
         `🏙️ *Ciudad:* ${finalCity}\n` +
         `📍 *Dirección:* ${formData.address}\n` +
-        `💳 *Método de Pago:* ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
+        `💳 *Pago:* ${formData.paymentMethod === 'contra_entrega' ? 'Contra Entrega' : 'Transferencia'}\n\n` +
         `🛍️ *Productos:*\n${itemsList}\n\n` +
-        `💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`
-      );
+        `💰 *TOTAL: $${total.toFixed(2)}*`;
 
-      // 👉 CAMBIA ESTE NÚMERO POR TU WHATSAPP REAL (Ej: 593991234567)
-      const myWhatsAppNumber = '593978805889'; 
+      // 3. Enviamos la notificación a Telegram en segundo plano
+      const botToken = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.NEXT_PUBLIC_TELEGRAM_CHAT_ID;
 
-      // 3. Vaciamos el carrito local y mostramos la pantalla de éxito
+      if (botToken && chatId) {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: telegramMessage,
+            parse_mode: 'Markdown',
+          }),
+        }).catch(err => console.error('Error enviando notificación a Telegram:', err));
+      }
+
+      // 4. Vaciamos carrito y mostramos éxito
       clearCart();
       setSubmitted(true);
 
-      // 4. Abrimos el chat de WhatsApp con el pedido redactado
-      window.open(`https://wa.me/${myWhatsAppNumber}?text=${whatsappMessage}`, '_blank');
-
     } catch (error) {
-      console.error('Error al guardar el pedido:', error);
+      console.error('Error al procesar el pedido:', error);
       alert('Hubo un error al procesar tu pedido. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
